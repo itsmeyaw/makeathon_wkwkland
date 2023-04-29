@@ -204,7 +204,20 @@ def post_documents(report_id, activity_id):
                     document_item['content'] = file_name + ".txt"
 
             # if document is an image encoded in base64 string
-            # TODO
+            if document_item['type'] == 'image':
+                image_item_raw = document_item['content']
+                image_item_decoded = base64.b64decode(image_item_raw)
+                with open(file_name + ".png", 'wb') as f:
+                    f.write(image_item_decoded)
+                    document_item['content'] = file_name + ".png"
+
+            # if document is an audio in base64 string
+            if document_item['type'] == 'audio':
+                audio_item_raw = document_item['content']
+                audio_item_decoded = base64.b64decode(audio_item_raw)
+                with open(file_name + ".mp3", 'wb') as f:
+                    f.write(audio_item_decoded)
+                    document_item['content'] = file_name + ".mp3"
 
             documents.insert_one(document_item)
             activity_item['documents'].append(document_item)
