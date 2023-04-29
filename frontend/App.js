@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { useState } from 'react';
+import React from 'react';
+import { useState, useEffect } from 'react';
 import { Text, ScrollView, StatusBar, Modal, Alert, View, StyleSheet, Pressable } from 'react-native';
 import { AppBar, IconButton, TextInput } from "@react-native-material/core";
 import { Card } from 'react-native-elements'
@@ -8,7 +8,7 @@ import Icon from "@expo/vector-icons/MaterialCommunityIcons";
 import { FAB } from 'react-native-paper';
 import uuid from 'react-native-uuid';
 import MainReport from './MainReport';
-import {root} from './Global.js'
+import {APIroot} from './Global.js'
 
 const testUsers = [
   {
@@ -129,12 +129,27 @@ async function fetchAsync (url) {
   return data;
 }
 
-
 const App = () => {
-  console.log("START")
-  console.log(root)
+  
+  const [data, setData] = useState()
+
+  const fetchData = () => {
+    fetch(APIroot+'/reports')
+      .then(response => {
+        return response.json()
+      })
+      .then(data => {
+        setData(data)
+        console.log(data)
+      })
+  }
+
+  useEffect(() => {
+    fetchData()
+  }, [])
+
   return(
-    <MainReport reports={reports}>
+    <MainReport reports={data}>
     </MainReport> 
   )
 };

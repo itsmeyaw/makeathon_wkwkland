@@ -41,8 +41,8 @@ const MainReport = ({ reports }) => {
           //     </Report>
           //   );
           // })
-
           reports.result.map((v, i) => {return(<Text>{v.created_at}</Text>)})
+          // <Text>{reports.result}</Text>
         }
         <Card>
           <Text>
