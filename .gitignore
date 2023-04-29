@@ -1,2 +1,5 @@
 /backend/.env
 /backend/data
+
+.expo/
+node_modules/
