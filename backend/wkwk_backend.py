@@ -83,7 +83,10 @@ def get_reports():
         report_list.append({
             'id' : str(report['_id']),
             'project_name' : report['project_name'],
+            'description' : report['description'],
             'created_at' : report['created_at'],
+            'start_date' : report['start_date'],
+            'end_date' : report['end_date'],
         })
     if len(report_list) == 0:
         return jsonify({'result' : 'no reports found'}), 404
@@ -106,8 +109,10 @@ def get_report(id):
         report = ({
             'id' : str(report_item['_id']),
             'project_name' : report_item['project_name'],
+            'description' : report_item['description'],
             'created_at' : report_item['created_at'],
-            'owner' : report_item['owner'],
+            'start_date' : report_item['start_date'],
+            'end_date' : report_item['end_date'],
             'activities' : activities_list
         })
     else:
