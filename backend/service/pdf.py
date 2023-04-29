@@ -13,23 +13,22 @@ from dto.report import Report, Activity, Document, DocumentType
 logger = logging.getLogger('PDF Service')
 
 
-def obtain_latex_for_recording(file_name: str, translation: str) -> str:
+def obtain_latex_for_recording(file_name: str, translation: str = None) -> str:
     return \
         f"""
-\\textbf{{Recording name}}: {file_name} 
+\\\\\\\\textbf{{Recording name}}: {file_name} 
 
-\\textbf{{Translation}}: {translation}
+\\\\\\\\textbf{{Translation}}: {translation if translation is not None else 'No translation'}
 """
 
 
-def obtain_latex_for_picture(file_path: str, caption: str) -> str:
+def obtain_latex_for_picture(file_path: str, destination_path: str, caption: str = None) -> str:
+    location = shutil.copy(file_path, destination_path)
+    logger.info(f'Copied file to {location}')
     return \
         f"""
-\\begin{{figure}}[H]
-    \\includegraphics[width=0.5\\linewidth]{{{file_path}}}
-    \\caption{{{caption}}}
-\\end{{figure}}
-"""
+\\\\\\\\begin{{figure}}[H]
+\\\\\\\\includegraphics[width=0.5\\\\\\\\linewidth]{{resource/{location.split('/')[-1]}}}""" + (f'\\\\\\\\caption{{{caption}}}' if caption is not None else '') + f"\\\\\\\\end{{figure}}"
 
 
 def obtain_latex_for_paragraph(text: str) -> str:
@@ -39,7 +38,7 @@ def obtain_latex_for_paragraph(text: str) -> str:
 def obtain_latex_for_file(file_path: str) -> str:
     return \
         f"""
-\\textbf{{File path}}: {file_path}        
+\\\\\\\\textbf{{File path}}: {file_path}        
 """
 
 def convert_latex_to_normal_text(text: str) -> str:
@@ -75,10 +74,26 @@ def process_latex_template(template_folder_path: str, output_folder_path: str, r
         activities_text = ''
 
         for activity in report.activities:
+            documents_string = ''
+            for document in activity.documents:
+                if document.type == DocumentType.TEXT:
+                    documents_string += obtain_latex_for_paragraph(document.content)
+                elif document.type == DocumentType.PICTURE:
+                    file_path = document.content
+                    documents_string += obtain_latex_for_picture(file_path, f'{output_folder_path}/resource')
+                elif document.type == DocumentType.AUDIO:
+                    file_path = document.content
+                    documents_string += obtain_latex_for_recording(file_path)
+                elif document.type == DocumentType.FILE:
+                    file_path = document.content
+                    documents_string += obtain_latex_for_file(file_path)
+                documents_string += ' \n\n '
+            logger.info(documents_string)
             activity_variable_dictionary = {
                 'ACTIVITY_NAME': activity.activity_name,
                 'ACTIVITY_DESCRIPTION': convert_normal_text_to_latex(activity.description),
-                'ACTIVITY_DATE': str(activity.date)
+                'ACTIVITY_DATE': str(activity.date),
+                'ACTIVITY_DOCUMENTS': documents_string
             }
             logger.debug(str(activity_variable_dictionary))
             with open(f'{template_folder_path}/{activity_template_file_name}', 'r') as activity_template_file:
@@ -114,8 +129,8 @@ def compile_pdf(template_folder_path: str, output_folder_path: str, report: Repo
     tempdir = tempfile.mkdtemp()
     logger.info(f'Created temporary folder {tempdir}')
 
-    process_latex_template(template_folder_path, tempdir, report)
     shutil.copytree(f'{template_folder_path}/resource', f'{tempdir}/resource')
+    process_latex_template(template_folder_path, tempdir, report)
 
     os.makedirs(output_folder_path)
     command = ['pdflatex', f'-output-directory={os.getcwd()}/{output_folder_path}', f'{tex_file_name}']
@@ -134,7 +149,7 @@ if __name__ == '__main__':
     handler = logging.StreamHandler(sys.stdout)
     handler.setLevel(logging.DEBUG)
     logger.addHandler(handler)
-    shutil.rmtree('../data/output/output_latex', ignore_errors=True)
+    shutil.rmtree('data/output/output_latex', ignore_errors=True)
     report = Report(
         id=uuid.uuid4(),
         project_name='Test Project',
@@ -161,7 +176,7 @@ if __name__ == '__main__':
                     Document(
                         id=uuid.uuid4(),
                         type=DocumentType.PICTURE,
-                        content='This will be picture'
+                        content='data/hanabi.jpg'
                     )
                 ]
             ),
@@ -180,4 +195,4 @@ if __name__ == '__main__':
             )
         ]
     )
-    compile_pdf('../resource/latex', '../data/output/output_latex', report)
+    compile_pdf('resource/latex', 'data/output/output_latex', report)
