@@ -2,9 +2,10 @@ from pymongo import MongoClient
 from datetime import datetime
 from flask import Flask, jsonify, request
 from bson.objectid import ObjectId
-from PIL import Image
 import base64
 import uuid
+
+
 
 
 app = Flask(__name__)
@@ -218,6 +219,7 @@ def post_documents(report_id, activity_id):
                 with open(file_name + ".mp3", 'wb') as f:
                     f.write(audio_item_decoded)
                     document_item['content'] = file_name + ".mp3"
+                
 
             documents.insert_one(document_item)
             activity_item['documents'].append(document_item)
