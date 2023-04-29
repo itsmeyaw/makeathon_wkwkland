@@ -2,6 +2,7 @@ from pymongo import MongoClient
 from datetime import datetime
 from flask import Flask, jsonify, request
 from bson.objectid import ObjectId
+from PIL import Image
 
 app = Flask(__name__)
 root = '/wkwk/api/v1'
@@ -11,7 +12,7 @@ root = '/wkwk/api/v1'
 client = MongoClient('localhost', 27017)
 db = client.wkwk
 
-# reports structure : {id, project_name, created_at, start_date, end_date, [activities], collaborators}
+# reports structure : {id, project_name, created_at, start_date, end_date, [activities], [collaborators]}
     # collaborators structure : {name, email, role}
     # activities structure : {id, activity_name, description, date, [documents], language}
         # documents structure : {id, type, content}
@@ -20,6 +21,14 @@ activities = db.activities
 documents = db.documents
 employees = db.employees
 
+# === debug ===
+@app.route(root + '/debug', methods=['POST'])
+def debug():
+    report_item = request.files['image']
+    img = Image.open(report_item)
+    img = img.convert('L')
+    img.save('test.jpg')
+    return "debug"
 
 # ================================================================================================ /reports
 # create report
@@ -92,11 +101,6 @@ def delete_reports():
     for report in reports.find():
         reports.delete_one(report)
     return jsonify({'result' : 'delete successful'}), 203
-
-# publish report
-@app.route(root + '/reports/<id>', methods=['POST'])
-def post_report(id):
-    return 
 
 # ================================================================================================ /reports/<report_id>/activities
 # query activities in report 
