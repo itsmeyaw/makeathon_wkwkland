@@ -145,5 +145,5 @@ if __name__ == '__main__':
     # print(translate_text('The quick brown fox jumps over the lazy dog', 'en', 'id'))
     # print(create_title("Now I am attending the Makeathon AI competition. It is very fun and the committe are very nice. The weather is very nice and everyone seems to enjoy the moment."))
     # print(str(describe_image(os.getenv('COMPVI_FILE'))))
-    translate_document('../data/report1.pdf', 'en', 'ja')
+    translate_document('data/report1.pdf', 'en', 'ja')
     pass
