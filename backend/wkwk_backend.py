@@ -11,11 +11,11 @@ root = '/wkwk/api/v1'
 client = MongoClient('localhost', 27017)
 db = client.wkwk
 
-# create collections for reports
+# reports structure : {id, project_name, created_at, owner, activities, languages, collaborators}
+# activities structure : {id, name, description, start_time, end_time}
 reports = db.reports
-activities = db.activities
-languages = db.languages
 collaborators = db.collaborators
+
 
 
 # create report
@@ -29,8 +29,11 @@ def create_report():
 
     # format datetime to smalldatetime from datetime.now()
     report_item['created_at'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    report_item['activities'] = []
+    report_item['languages'] = []
+    report_item['collaborators'] = []
     reports.insert_one(report_item)
-    return jsonify({'result' : 'success'}), 200
+    return jsonify({'result' : 'report creation successful'}), 200
 
 # get all reports
 @app.route(root + '/reports', methods=['GET'])
@@ -41,29 +44,36 @@ def get_reports():
             'id' : str(report['_id']),
             'project_name' : report['project_name'],
             'created_at' : report['created_at'],
-            'owner' : report['owner']
+            'owner' : report['owner'],
+            'activities' : report['activities']
         })
-    return jsonify({'result' : report_list}), 200
+    if len(report_list) == 0:
+        return jsonify({'result' : 'no reports found'}), 404
+    
+    return jsonify({'result' : report_list}), 201
 
 # get report by id
 @app.route(root + '/reports/<id>', methods=['GET'])
 def get_report(id):
     report_item = reports.find_one({'_id' : ObjectId(id)})
+    print(report_item)
     if report_item:
         return jsonify({'result' : {
             'id' : str(report_item['_id']),
             'project_name' : report_item['project_name'],
             'created_at' : report_item['created_at'],
-            'owner' : report_item['owner']
-        }}), 200
-    
+            'owner' : report_item['owner'],
+            'activities' : report_item['activities']
+        }}), 202
+    else:
+        return jsonify({'result' : 'report not found'}), 404
 
 # delete all reports
 @app.route(root + '/reports', methods=['DELETE'])
 def delete_reports():
     for report in reports.find():
         reports.delete_one(report)
-    return jsonify({'result' : 'success'}), 200
+    return jsonify({'result' : 'delete successful'}), 203
 
 # publish report
 @app.route(root + '/reports/<id>', methods=['POST'])
@@ -72,7 +82,7 @@ def post_report(id):
 
 # get all activities in specific report draft
 @app.route(root + '/reports/<report_id>/activities', methods=['GET'])
-def get_activities(report_id, activity_id):
+def get_activities(report_id):
     return
 
 # get activity query in specific report draft
@@ -82,7 +92,14 @@ def get_activity(report_id, activity_id):
 
 # query activities in report 
 @app.route(root + '/reports/<report_id>/activities', methods=['POST'])
-def post_activity(report_id, id2):
+def post_activities(report_id):
+    report_item = reports.find_one({'_id' : ObjectId(report_id)})
+    if report_item:
+        activity_item = request.get_json()
+        if 'name' not in activity_item or 'description' not in activity_item or 'start_time' not in activity_item or 'end_time' not in activity_item:
+            return jsonify({'result' : 'failed', 'message' : 'Invalid JSON format'}), 400
+        
+
     return
 
 # generate report select language
