@@ -4,6 +4,7 @@ from flask import Flask, jsonify, request
 from bson.objectid import ObjectId
 import base64
 import uuid
+from service import ai
 
 
 
@@ -16,7 +17,7 @@ root = '/wkwk/api/v1'
 client = MongoClient('localhost', 27017)
 db = client.wkwk
 
-# reports structure : {id, project_name, created_at, start_date, end_date, [activities], [collaborators]}
+# reports structure : {id, project_name, description, created_at, start_date, end_date, [activities], [collaborators]}
     # collaborators structure : {name, email, role}
     # activities structure : {id, activity_name, description, date, [documents], language}
         # documents structure : {id, type, content}
@@ -56,7 +57,7 @@ def create_report():
     report_item = request.get_json()
 
     # chceck json format is correct
-    if 'project_name' not in report_item or 'start_date' not in report_item or 'end_date'not in report_item  or 'owner' not in report_item:
+    if 'project_name' not in report_item or 'start_date' not in report_item or 'end_date'not in report_item  or 'owner' not in report_item or 'description' not in report_item:
         return jsonify({'result' : 'failed', 'message' : 'Invalid JSON format'}), 400
 
     report_item['start_date'] = datetime.strptime(report_item['start_date'], "%Y-%m-%d")
@@ -278,10 +279,50 @@ def get_document(report_id, activity_id, document_id):
 # ================================================================================================ 
 
 # generate report select language
-@app.route(root + '/reports/<report_id>/languages/<language_id>', methods=['GET'])
-def generate_report(report_id, language_id):
+@app.route(root + '/reports/<report_id>/languages/<target_language>', methods=['GET'])
+def generate_report(report_id, target_language):
+    report_item = reports.find_one({'_id' : ObjectId(report_id)})
+    activity_list_translated = []
+    if report_item:
+        # translate all activities in report for languages other than the selected one
+        for activity in report_item['activities']:
+            activity_item = activities.find_one({'_id' : ObjectId(activity['_id'])})
+            
+            document_list_translated = []
+            lang_activity = activity_item['language']
 
-    return
+            # change activity name if language is different
+            if lang_activity != target_language:
+                activity_item['name'] = ai.translate_text(activity_item['name'], lang_activity, target_language)
+
+            # if language is different, translate the activity and all the documents in it
+            for document in activity_item['documents']:
+                document_item = documents.find_one({'_id' : ObjectId(document['_id'])})
+
+                # search for text documents in the activity and translate them
+                if document['type'] == 'text':
+                    if lang_activity != target_language:
+                        with open(document['content'], 'r') as f:
+                            text = f.read()
+                            translated_text, metric = ai.translate_text(text, lang_activity, target_language)
+                            document_item['content'] = translated_text
+                        document_list_translated.append(document_item)
+                    else:
+                        document_list_translated.append(document_item)
+                
+                # search for audio files in the activity and transcribe them
+                elif document['type'] == 'audio':
+                    transcripted_text = ai.recognize_speech(document['content'], lang_activity)
+                    translated_text, metric = ai.translate_text(transcripted_text, lang_activity, target_language)
+                    document_item['content'] = translated_text
+                    document_list_translated.append(document_item)
+                else: 
+                    document_list_translated.append(document_item)
+            print(document_list_translated)
+                            
+                    
+
+    return "debug"
 
 # get all collaborators of a specific report
 @app.route(root + '/reports/<report_id>/colaborators', methods=['GET'])
