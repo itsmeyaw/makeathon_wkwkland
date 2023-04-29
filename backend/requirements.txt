@@ -5,3 +5,4 @@ openai~=0.27.5
 azure-ai-translation-document~=1.0.0
 azure-ai-translation-text~=1.0.0b1
 azure-storage-blosb~=12.16.0
+python-dotenv~=1.0.0
