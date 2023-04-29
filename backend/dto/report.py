@@ -30,6 +30,8 @@ class Activity:
 @dataclass
 class Report:
     id: uuid.UUID
+    description: str
+    success: bool
     project_name: str
     created_at: date
     owner: str

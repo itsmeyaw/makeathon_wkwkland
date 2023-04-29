@@ -12,22 +12,78 @@
 \usepackage{listings}
 \usepackage{amsfonts}
 \usepackage{enumerate}
+\usepackage{tcolorbox}
 \usepackage[shortlabels]{enumitem}
 \usepackage[outline]{contour}
 
 \setlength\parindent{0pt}
+\renewcommand{\familydefault}{\sfdefault}
+
+\pagestyle{myheadings}
+\markright{\begin{Large} \textbf{Report {{ PROJECT_NAME }}} \end{Large}\hfill }
 
 \begin{document}
-    \begin{center}
-        \begin{huge}
-            Report {{ PROJECT_NAME }}
-        \end{huge} \\
-        {{ OWNER_NAME }} \\
-        {{ CREATED_AT }}
-    \end{center}
 
-    \vspace{2cm}
+
+    \vspace{-1cm}
+
+    \begin{center}
+        \begin{figure}[H]
+            \centering
+            \includegraphics[width=5cm]{resource/logo.png}
+        \end{figure}
+    \end{center}
+    
+    \vspace{-1cm}
+    
+    \begin{flushright}
+        \begin{small}
+            \begin{tabular}{l l}
+                Electro Volt Technician & {{ REPORTER\_NAME }} \\
+                Functional Location Description & {{ REPORT\_LOCATION }} \\
+                Code-Word Equipment & {{ CODE\_WORD\_EQUIPMENT }} \\
+                Description Equipment Number & {{ DESC\_EQ\_NUMBER }}
+            \end{tabular}
+        \end{small}
+    \end{flushright}
+
+    \begin{tcolorbox}[colback=white,boxrule=0.5pt,sharp corners]
+        \begin{minipage}[H]{\linewidth}
+            \begin{large}
+                \begin{tabular}{l l}
+                    Subject Service & Max Mustermann \\
+                    Order Customer & 0123456789 \\
+                    No. Operation & 0020 \\
+                    No. Notification & 0001231489310419 \\
+                    No. Type & Field Service \\
+                    Period & 25.02.2023 - 01.03.2023 \\
+                \end{tabular}
+            \end{large}
+        \end{minipage}
+    \end{tcolorbox}
+
+    \begin{flushright}
+        Date 3.3.2023 \hspace{1cm} Page 1 / x
+    \end{flushright}
+
+    \underline{Description of the problem / maintenance / inspection} \\
+
+    {{ DESCRIPTION }}
+
+    \vspace{1cm}
+    
+    \underline{Reason and solution of the problem / accomplished work} \\
 
 {{ ACTIVITIES }}
+
+    \vspace{0.5cm}
+
+    \textbf{Operation successful} \qquad {{ SUCCESS }} \\
+
+    \begin{tabular}[H]{p{0.5\linewidth} p{0.5\linewidth}}
+        \textbf{Signature Supervisor} & \textbf{Signature Technician} \\
+        \hline
+        \vspace{1cm} x & \vspace{1cm} x \\
+    \end{tabular}
 
 \end{document}
