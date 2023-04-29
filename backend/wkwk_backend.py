@@ -11,10 +11,10 @@ root = '/wkwk/api/v1'
 client = MongoClient('localhost', 27017)
 db = client.wkwk
 
-# reports structure : {id, project_name, created_at, owner, activities, languages, collaborators}
+# reports structure : {id, project_name, created_at, owner, activities, language, collaborators}
 # activities structure : {id, name, description, start_time, end_time}
+# collaborators structure : {name, email, role}
 reports = db.reports
-collaborators = db.collaborators
 
 
 
@@ -30,7 +30,7 @@ def create_report():
     # format datetime to smalldatetime from datetime.now()
     report_item['created_at'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     report_item['activities'] = []
-    report_item['languages'] = []
+    report_item['language'] = 'English'
     report_item['collaborators'] = []
     reports.insert_one(report_item)
     return jsonify({'result' : 'report creation successful'}), 200
