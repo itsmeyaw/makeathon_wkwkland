@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, TouchableOpacity, Modal, Styles, StyleSheet, TextInput, Pressable, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, Modal, Styles, StyleSheet, TextInput, Pressable, Alert, LayoutAnimation, UIManager } from 'react-native';
 import { Card, Icon } from 'react-native-elements';
 import { Button } from '@react-native-material/core';
 import ActivityCard from "./ActivityCard";
@@ -62,8 +62,11 @@ const ChronologyCard = ({ chronology }) => {
     };
 
     const toggleExpanded = () => {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
         setExpanded(!expanded);
     };
+
+    UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
 
     return (
         <>
@@ -81,12 +84,12 @@ const ChronologyCard = ({ chronology }) => {
                                 <ActivityCard activity={activity} key={i}></ActivityCard>
                             ))
                         }
-                        <Card wrapperStyle={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-                            <Button buttonStyle={{ borderRadius: 0, marginLeft: 5, marginRight: 5, marginBottom: 0 }}
-                                title={'Text'} onPress={() => { setModalVisible(true) }} />
-                            <Button buttonStyle={{ borderRadius: 0, marginLeft: 5, marginRight: 5, marginBottom: 0 }}
+                        <Card wrapperStyle={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
+                            <Button style={{margin: 10}}
+                                title={'Text!'} onPress={() => { setModalVisible(true) }} />
+                            <Button style={{margin: 10}}
                                 title={'Voice'} onPress={pickAudio} />
-                            <Button buttonStyle={{ borderRadius: 0, marginLeft: 5, marginRight: 5, marginBottom: 0 }}
+                            <Button style={{margin: 10}}
                                 title={'Image'} onPress={pickImage} />
                         </Card>
                         <Button

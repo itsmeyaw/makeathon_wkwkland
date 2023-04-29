@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Image, Modal } from 'react-native';
+import { View, Text, TouchableOpacity, Image, Modal, Pressable, Alert } from 'react-native';
 import { Card, Button, Icon } from 'react-native-elements';
 import { Audio } from 'expo-av';
+import CustomAlert from './CustomAlert';
 
 const ActivityCard = ({ activity }) => {
 
@@ -26,6 +27,15 @@ const ActivityCard = ({ activity }) => {
         }
     }
 
+    const [showAlert, setShowAlert] = useState(false);
+
+  const handleShowAlert = () => {
+    setShowAlert(true);
+  };
+
+  const handleCloseAlert = () => {
+    setShowAlert(false);
+  };
 
     return (
         <>
@@ -38,7 +48,17 @@ const ActivityCard = ({ activity }) => {
                 </Text>
                 {
                     activity.image &&
+                    <>
+                    <Pressable onPress={handleShowAlert}>
                     <Card.Image source={{ uri: activity.image }}></Card.Image>
+                    </Pressable>
+                    <CustomAlert
+        visible={showAlert}
+        onClose={handleCloseAlert}
+        imageSource={{ uri: activity.image }}
+        message="This is my custom alert with an image!"
+      />
+                    </>
                 }
                 {
                     activity.audio &&

@@ -141,7 +141,7 @@ const App = () => {
         Temporarily set the name of the current report to Report 0
         TODO: Change to adjust to current actual Report
       */
-        trailing={props => (<IconButton icon={props => <Icon name="download" {...props} />} {...props} onPress={()=>{Alert.alert("DOOOOOOWNNN")}}/>)}
+        trailing={props => (<IconButton icon={props => <Icon name="download" {...props} />} {...props} onPress={()=>{Alert.alert("Download Report")}}/>)}
         title={reports[0].name}
         color="#2b2b2b" />
       <ScrollView>
