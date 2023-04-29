@@ -2,6 +2,10 @@ from pymongo import MongoClient
 from datetime import datetime
 from flask import Flask, jsonify, request
 from bson.objectid import ObjectId
+from PIL import Image
+import base64
+import uuid
+
 
 app = Flask(__name__)
 root = '/wkwk/api/v1'
@@ -11,14 +15,37 @@ root = '/wkwk/api/v1'
 client = MongoClient('localhost', 27017)
 db = client.wkwk
 
-# reports structure : {id, project_name, created_at, start_date, end_date, [activities], collaborators}
+# reports structure : {id, project_name, created_at, start_date, end_date, [activities], [collaborators]}
     # collaborators structure : {name, email, role}
     # activities structure : {id, activity_name, description, date, [documents], language}
         # documents structure : {id, type, content}
+            # type : image, text, , input_text, audio, video
 reports = db.reports
 activities = db.activities
 documents = db.documents
 employees = db.employees
+
+# === debug ===
+@app.route(root + '/debug', methods=['POST'])
+def debug():
+    # image_item = request.files['image']
+    # img = Image.open(image_item)
+    # img = img.convert('L')
+    # img.save('test.jpg')
+    # return "debug"
+
+
+    # text_item = request.files['text']
+    # text_item = text_item.read()
+    # text_item = text_item.decode('utf-8')
+
+    # with open('test.txt', 'w') as file:
+    #     file.write(text_item)
+
+    # return "debug"
+    return " "
+
+
 
 
 # ================================================================================================ /reports
@@ -93,11 +120,6 @@ def delete_reports():
         reports.delete_one(report)
     return jsonify({'result' : 'delete successful'}), 203
 
-# publish report
-@app.route(root + '/reports/<id>', methods=['POST'])
-def post_report(id):
-    return 
-
 # ================================================================================================ /reports/<report_id>/activities
 # query activities in report 
 @app.route(root + '/reports/<report_id>/activities', methods=['POST'])
@@ -168,9 +190,22 @@ def post_documents(report_id, activity_id):
     if report_item:
         activity_item = activities.find_one({'_id' : ObjectId(activity_id)})
         if activity_item:
+            file_name = str(activity_item['_id']) + '_' + str(uuid.uuid4())
             document_item = request.get_json()
             if 'type' not in document_item or 'content' not in document_item:
                 return jsonify({'result' : 'failed', 'message' : 'Invalid JSON format'}), 400
+            
+            # if document is an encoded base64 string
+            if document_item['type'] == 'text':
+                text_item_raw = document_item['content']
+                text_item_decoded = base64.b64decode(text_item_raw).decode('utf-8')
+                with open(file_name + ".txt", 'w') as f:
+                    f.write(text_item_decoded)
+                    document_item['content'] = file_name + ".txt"
+
+            # if document is an image encoded in base64 string
+            # TODO
+
             documents.insert_one(document_item)
             activity_item['documents'].append(document_item)
             
