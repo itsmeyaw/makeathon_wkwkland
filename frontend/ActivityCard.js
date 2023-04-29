@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, Image } from 'react-native';
 import { Card, Button, Icon } from 'react-native-elements';
 
 const ActivityCard = ({ activity }) => {
@@ -12,6 +12,7 @@ const ActivityCard = ({ activity }) => {
                 <Text>
                     {activity.UUID}
                 </Text>
+                <Card.Image source={{uri:activity.file}}></Card.Image>
             </Card>
         </>
     );

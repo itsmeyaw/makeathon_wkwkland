@@ -1,18 +1,14 @@
 import React from 'react';
-import { Text, ScrollView, StatusBar } from 'react-native';
-import { AppBar, IconButton } from "@react-native-material/core";
+import { useState } from 'react';
+import { Text, ScrollView, StatusBar, Modal, Alert, View, StyleSheet, Pressable, DatePickerIOSBase } from 'react-native';
+import { AppBar, IconButton, TextInput } from "@react-native-material/core";
 import { Card } from 'react-native-elements'
 import Report from "./Report.js"
 import Icon from "@expo/vector-icons/MaterialCommunityIcons";
 import { FAB } from 'react-native-paper';
+import uuid from 'react-native-uuid';
 
-const rows = [];
-const numrows = 100;
-for (let i = 0; i < numrows; i++) {
-  rows.push(<Text>{i}</Text>);
-}
-
-const users = [
+const testUsers = [
   {
     id: 1,
     name: 'Eber',
@@ -35,52 +31,11 @@ const users = [
   },
 ];
 
-const chronology = [
-  {
-    id: 1,
-    name: 'running',
-  },
-  {
-    id: 2,
-    name: 'walking',
-  },
-  {
-    id: 3,
-    name: 'swimming',
-  },
-  {
-    id: 4,
-    name: 'cycling',
-  },
-  {
-    id: 5,
-    name: 'hiking',
-  },
-  {
-    id: 6,
-    name: 'yoga',
-  },
-  {
-    id: 7,
-    name: 'strength training',
-  },
-  {
-    id: 8,
-    name: 'dancing',
-  },
-  {
-    id: 9,
-    name: 'pilates',
-  },
-  {
-    id: 10,
-    name: 'boxing',
-  },
-];
-
 const reports = [{
   "name": "TUMAI",
   "UUID": "8927302341934",
+  "DateStart": "01.01.2001",
+  "DateEnd":"30.30.2030",
   "chronologies": [
     {
       "time": "01.01.2023",
@@ -151,9 +106,25 @@ const reports = [{
   ]
 }];
 
-const title = 'Chronology of Report';
+const deleteChronology = (id) => {
+  const chronologyIndexToDelete = reports[reportIndex].chronologies.findIndex(
+    (chronology) => chronology.UUID === uuidToDelete
+  );
+  if (chronologyIndexToDelete >= 0) {
+    reports[reportIndex].chronologies.splice(chronologyIndexToDelete, 1);
+    console.log("Chronology deleted successfully.");
+  } else {
+    console.log("Chronology with UUID " + uuidToDelete + " not found.");
+  }
+}
+
 
 const App = () => {
+
+  const [modalVisible, setModalVisible] = useState(false);
+  const [newChronologyName, setNewChronologyName] = useState('');
+  const [newChronologyDate, setNewChronologyDate] = useState('');
+
   return (
     <>
       <StatusBar backgroundColor="#2b2b2b"></StatusBar>
@@ -162,59 +133,65 @@ const App = () => {
       )}
         title={reports[0].name} color="#2b2b2b" />
       <ScrollView>
-        <Text style={{textAlign: 'center', padding: 30, fontSize: 20}}>What activities did you have today?</Text>
-        {/* <View>
-          <Text>Let's do some reporting, meow!</Text>
-          <Image
-            source={{
-              uri: 'https://reactnative.dev/docs/assets/p_cat2.png',
-            }}
-            style={{ width: 200, height: 200 }}
-          />
-        </View>
-        <TextInput
-          style={{
-            height: 40,
-            borderColor: 'gray',
-            borderWidth: 1,
-          }}
-          defaultValue="I don't do much yet"
-        /> */}
-        {/* <View>
-          {rows}
-        </View> */}
-        {/* {
-          users.map((u,i) => {
-            return(<>
-            <Card>
-          <Card.Title>{u.name}</Card.Title>
-          <Card.Divider />
-          <Card.Image source={require('./assets/favicon.png')} />
-          <Text style={{ marginBottom: 10 }}>
-            This is a brief description of a chrono.
-          </Text>
-          <Button
-            icon={<Icon name='code' color='#ffffff' />}
-            buttonStyle={{ borderRadius: 0, marginLeft: 0, marginRight: 0, marginBottom: 0 }}
-            title='VIEW NOW' />
-        </Card>
-            </>);
-          })
-        } */}
+        <Text style={{ textAlign: 'center', padding: 30, fontSize: 20 }}>What's going in the report today?</Text>
         {
           reports.map((u, i) => {
             return (
-                <Report key={i} report={u}>
-                </Report>
+              <Report key={i} report={u}>
+              </Report>
             );
           })
         }
-          <Card>
-            <Text>
+        <Card>
+          <Text>
             End of chronology
-            </Text>
-          </Card>
+          </Text>
+        </Card>
       </ScrollView>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          setModalVisible(!modalVisible);
+        }}>
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <Text style={styles.modalText}>New Chronology</Text>
+            <Text>Chronology Name</Text>
+            <TextInput
+              style={styles.input}
+              onChangeText={(i)=>{console.log("name input:"+i);setNewChronologyName(i);}}
+              placeholder={'e.g. "TUM.AI Hackathon KickOff" '}
+            />
+            <Text>Time</Text>
+            <TextInput
+              style={styles.input}
+              onChangeText={(i)=>{console.log("time input:"+i);setNewChronologyDate(i);}}
+              placeholder={'e.g. "28.04.2023 15:02" '}
+            />
+            <Pressable
+              style={[styles.button, styles.buttonClose]}
+              onPress={() => { 
+
+                const chronologyToAdd =
+                  {"time":newChronologyDate, "name":newChronologyName, "UUID":uuid.v4(), "activities":[]}
+                console.log(chronologyToAdd)
+                  reports[0].chronologies.push(chronologyToAdd)
+
+                Alert.alert("Chronology added"); setModalVisible(!modalVisible); }}>
+              <Text style={styles.textStyle}>Add</Text>
+            </Pressable>
+            <Pressable
+              style={[styles.button, styles.buttonClose]}
+              onPress={() => { setModalVisible(!modalVisible); }}>
+              <Text style={styles.textStyle}>Cancel</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
+
       <AppBar
         variant="bottom"
         style={{ position: "absolute", start: 0, end: 0, bottom: 0 }}
@@ -222,11 +199,52 @@ const App = () => {
         <FAB
           icon={props => <Icon name="plus" {...props} />}
           style={{ position: "absolute", top: -10, alignSelf: "center" }}
-          onPress={()=>{console.log("Add Hack")}}
+          onPress={() => { console.log("Add Hack"); setModalVisible(!modalVisible); setNewChronologyDate(""); setNewChronologyName("");  }}
         />
       </AppBar>
     </>
   );
 };
+
+const styles = StyleSheet.create({
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center'
+  },
+  modalView: {
+    margin: 5,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 10,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  button: {
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2,
+  },
+  buttonOpen: {
+    backgroundColor: '#F194FF',
+  },
+  buttonClose: {
+    backgroundColor: '#2196F3',
+  },
+  textStyle: {
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+});
 
 export default App;
