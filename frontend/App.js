@@ -135,14 +135,15 @@ const App = () => {
   return (
     <>
       <StatusBar backgroundColor="#2b2b2b"></StatusBar>
-      <AppBar leading={props => (
-        <IconButton icon={props => <Icon name="menu" {...props} />} {...props} />
-      )}
+      <AppBar leading={props => (<IconButton icon={props => <Icon name="menu" {...props} />} {...props} />)}
+
       /*
         Temporarily set the name of the current report to Report 0
         TODO: Change to adjust to current actual Report
       */
-        title={reports[0].name} color="#2b2b2b" />
+        trailing={props => (<IconButton icon={props => <Icon name="download" {...props} />} {...props} onPress={()=>{Alert.alert("DOOOOOOWNNN")}}/>)}
+        title={reports[0].name}
+        color="#2b2b2b" />
       <ScrollView>
         {
           reports.map((u, i) => {
