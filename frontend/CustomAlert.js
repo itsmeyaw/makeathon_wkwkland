@@ -4,7 +4,7 @@ import { View, Modal, Image, Text, TouchableOpacity } from 'react-native';
 const CustomAlert = ({ visible, onClose, imageSource, message }) => {
   return (
     <Modal
-      animationType="slide"
+      animationType="fade"
       transparent={true}
       visible={visible}
       onRequestClose={onClose}>
@@ -13,25 +13,24 @@ const CustomAlert = ({ visible, onClose, imageSource, message }) => {
           flex: 1,
           justifyContent: 'center',
           alignItems: 'center',
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          backgroundColor: 'rgba(0, 0, 0, 0.3)',
         }}>
         <View
           style={{
             backgroundColor: 'white',
-            borderRadius: 8,
-            padding: 16,
+            borderRadius: 0,
             alignItems: 'center',
           }}>
           <Image
             source={imageSource}
-            style={{ width: 300, height: 200, marginBottom: 0 }}
+            style={{ width: 300, height: 300, marginBottom: 0 }}
           />
           <TouchableOpacity onPress={onClose}>
             <Text
               style={{
                 fontSize: 16,
                 fontWeight: 'bold',
-                marginTop: 16,
+                margin: 10,
                 color: 'blue',
               }}>
               OK
