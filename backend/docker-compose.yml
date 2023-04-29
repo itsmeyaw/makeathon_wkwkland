@@ -1,0 +1,22 @@
+version: "3.9"
+services:
+  web:
+    build: .
+    ports:
+      - "80:80"
+      - "443:80"
+    depends_on:
+      - mongodb
+    links:
+      - "mongodb"
+    environment:
+      MONGODB_URI: "mongodb://mongodb:27017/booksData"
+    env_file:
+      - .env
+  mongodb:
+    restart: always
+    image: mongo:5
+    expose:
+      - 27017
+    volumes:
+      - ./data/mongo:/data/db
