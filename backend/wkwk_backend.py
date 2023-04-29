@@ -345,4 +345,4 @@ def post_collaborator(report_id):
 
 
 if __name__ == '__main__':
-    app.run(port=8080)
+    app.run(port=8080, host="10.183.126.209")

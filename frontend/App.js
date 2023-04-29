@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useState } from 'react';
 import { Text, ScrollView, StatusBar, Modal, Alert, View, StyleSheet, Pressable } from 'react-native';
 import { AppBar, IconButton, TextInput } from "@react-native-material/core";
@@ -8,6 +8,7 @@ import Icon from "@expo/vector-icons/MaterialCommunityIcons";
 import { FAB } from 'react-native-paper';
 import uuid from 'react-native-uuid';
 import MainReport from './MainReport';
+import {root} from './Global.js'
 
 const testUsers = [
   {
@@ -122,13 +123,21 @@ const deleteChronology = (id) => {
   }
 }
 
+async function fetchAsync (url) {
+  let response = await fetch(url);
+  let data = await response.json();
+  return data;
+}
+
+
 const App = () => {
+  console.log("START")
+  console.log(root)
   return(
     <MainReport reports={reports}>
     </MainReport> 
   )
 };
-
 
 const styles = StyleSheet.create({
   centeredView: {
