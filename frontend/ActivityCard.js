@@ -12,7 +12,10 @@ const ActivityCard = ({ activity }) => {
                 <Text>
                     {activity.UUID}
                 </Text>
-                <Card.Image source={{uri:activity.file}}></Card.Image>
+                {
+                    activity.file &&
+                    <Card.Image source={{uri:activity.file}}></Card.Image>
+                }
             </Card>
         </>
     );

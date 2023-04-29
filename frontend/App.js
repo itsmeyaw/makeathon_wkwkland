@@ -1,6 +1,6 @@
 import React from 'react';
 import { useState } from 'react';
-import { Text, ScrollView, StatusBar, Modal, Alert, View, StyleSheet, Pressable, DatePickerIOSBase } from 'react-native';
+import { Text, ScrollView, StatusBar, Modal, Alert, View, StyleSheet, Pressable } from 'react-native';
 import { AppBar, IconButton, TextInput } from "@react-native-material/core";
 import { Card } from 'react-native-elements'
 import Report from "./Report.js"
@@ -35,7 +35,7 @@ const reports = [{
   "name": "TUMAI",
   "UUID": "8927302341934",
   "DateStart": "01.01.2001",
-  "DateEnd":"30.30.2030",
+  "DateEnd": "30.30.2030",
   "chronologies": [
     {
       "time": "01.01.2023",
@@ -106,6 +106,9 @@ const reports = [{
   ]
 }];
 
+/*
+WIP - Deleting chronology
+*/
 const deleteChronology = (id) => {
   const chronologyIndexToDelete = reports[reportIndex].chronologies.findIndex(
     (chronology) => chronology.UUID === uuidToDelete
@@ -122,6 +125,10 @@ const deleteChronology = (id) => {
 const App = () => {
 
   const [modalVisible, setModalVisible] = useState(false);
+
+  /*
+  States to create a new Chronology which changes with the text boxes
+  */
   const [newChronologyName, setNewChronologyName] = useState('');
   const [newChronologyDate, setNewChronologyDate] = useState('');
 
@@ -131,9 +138,12 @@ const App = () => {
       <AppBar leading={props => (
         <IconButton icon={props => <Icon name="menu" {...props} />} {...props} />
       )}
+      /*
+        Temporarily set the name of the current report to Report 0
+        TODO: Change to adjust to current actual Report
+      */
         title={reports[0].name} color="#2b2b2b" />
       <ScrollView>
-        <Text style={{ textAlign: 'center', padding: 30, fontSize: 20 }}>What's going in the report today?</Text>
         {
           reports.map((u, i) => {
             return (
@@ -144,7 +154,7 @@ const App = () => {
         }
         <Card>
           <Text>
-            End of chronology
+            End of Chronology
           </Text>
         </Card>
       </ScrollView>
@@ -162,25 +172,30 @@ const App = () => {
             <Text>Chronology Name</Text>
             <TextInput
               style={styles.input}
-              onChangeText={(i)=>{console.log("name input:"+i);setNewChronologyName(i);}}
+              onChangeText={(i) => { console.log("name input:" + i); setNewChronologyName(i); }}
               placeholder={'e.g. "TUM.AI Hackathon KickOff" '}
             />
             <Text>Time</Text>
             <TextInput
               style={styles.input}
-              onChangeText={(i)=>{console.log("time input:"+i);setNewChronologyDate(i);}}
+              onChangeText={(i) => { console.log("time input:" + i); setNewChronologyDate(i); }}
               placeholder={'e.g. "28.04.2023 15:02" '}
             />
             <Pressable
               style={[styles.button, styles.buttonClose]}
-              onPress={() => { 
+              onPress={() => {
 
                 const chronologyToAdd =
-                  {"time":newChronologyDate, "name":newChronologyName, "UUID":uuid.v4(), "activities":[]}
+                  { "time": newChronologyDate, "name": newChronologyName, "UUID": uuid.v4(), "activities": [] }
                 console.log(chronologyToAdd)
-                  reports[0].chronologies.push(chronologyToAdd)
 
-                Alert.alert("Chronology added"); setModalVisible(!modalVisible); }}>
+                /*
+                Currently only adds to Report 0
+                */
+                reports[0].chronologies.push(chronologyToAdd)
+
+                Alert.alert("Chronology added"); setModalVisible(!modalVisible);
+              }}>
               <Text style={styles.textStyle}>Add</Text>
             </Pressable>
             <Pressable
@@ -199,7 +214,7 @@ const App = () => {
         <FAB
           icon={props => <Icon name="plus" {...props} />}
           style={{ position: "absolute", top: -10, alignSelf: "center" }}
-          onPress={() => { console.log("Add Hack"); setModalVisible(!modalVisible); setNewChronologyDate(""); setNewChronologyName("");  }}
+          onPress={() => { setModalVisible(!modalVisible); setNewChronologyDate(""); setNewChronologyName(""); }}
         />
       </AppBar>
     </>

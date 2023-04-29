@@ -10,32 +10,29 @@ import uuid from 'react-native-uuid';
 const ChronologyCard = ({ chronology }) => {
 
     const [expanded, setExpanded] = useState(false);
-    const [fileResponse, setFileResponse] = useState(null);
 
     const [image, setImage] = useState(null);
     const [imageName, setImageName] = useState(null);
 
-    const openDocument = async () => {
-        const document = DocumentPicker.getDocumentAsync()
-        setFileResponse(document)
-        console.log(fileResponse._j.name)
-        chronology.activities.push({"order_number":2023, "name": document.name, "UUID":uuid.v4()})
-        return document
-    };
-
     const pickImage = async () => {
         let result = await DocumentPicker.getDocumentAsync({
-          type: 'image/*',
-          copyToCacheDirectory: false,
+            type: 'image/*',
+            copyToCacheDirectory: false,
         });
         if (!result.cancelled) {
-          setImage(result.uri);
-          setImageName(result.name);
-          console.log(result.name);
-          await chronology.activities.push({"order_number":2023, "name": result.name, "UUID":uuid.v4(),"file":result.uri})
-          console.log(chronology.activities)
+            const newActivity = {
+                order_number: 2023,
+                name: result.name,
+                UUID: uuid.v4(),
+                file: result.uri,
+            };
+            const newActivities = [...chronology.activities, newActivity];
+            chronology.activities = newActivities;
+            console.log(newActivities);
+            setImage(result.uri);
+            setImageName(result.name);
         }
-      };
+    };
 
     const toggleExpanded = () => {
         setExpanded(!expanded);
@@ -48,7 +45,7 @@ const ChronologyCard = ({ chronology }) => {
                 <Text style={{ fontSize: 22 }}>{chronology.name}</Text>
                 <Text style={{ fontSize: 10 }}>{chronology.time}</Text>
                 <Text style={{ marginBottom: 10 }}>
-                    This is a brief description of a chrono.
+                    {chronology.UUID}
                 </Text>
                 {expanded && (
                     <View>
@@ -59,11 +56,11 @@ const ChronologyCard = ({ chronology }) => {
                         }
                         <Card wrapperStyle={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
                             <Button buttonStyle={{ borderRadius: 0, marginLeft: 5, marginRight: 5, marginBottom: 0 }}
-                                title={'Text'} onPress={openDocument}/>
+                                title={'Text'} onPress={() => { }} />
                             <Button buttonStyle={{ borderRadius: 0, marginLeft: 5, marginRight: 5, marginBottom: 0 }}
-                                title={'Voice'} onPress={()=>{}}/>
+                                title={'Voice'} onPress={() => { }} />
                             <Button buttonStyle={{ borderRadius: 0, marginLeft: 5, marginRight: 5, marginBottom: 0 }}
-                                title={'Image'} onPress={pickImage}/>
+                                title={'Image'} onPress={pickImage} />
                         </Card>
                         <Button
                             buttonStyle={{ borderRadius: 0, marginLeft: 0, marginRight: 0, marginBottom: 0 }}
