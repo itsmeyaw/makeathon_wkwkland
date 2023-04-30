@@ -66,7 +66,7 @@ def convert_normal_text_to_latex(text: str) -> str:
     :return: Latex-formatted string
     """
     # Change new line in text to new line in Latex
-    escaped_new_line = re.sub('\n', ' \n\n ', text)
+    escaped_new_line = re.sub('\n', ' \n\n ', str(text))
     return escaped_new_line
 
 
@@ -102,7 +102,7 @@ def process_latex_template(template_folder_path: str, output_folder_path: str, r
                 documents_string += ' \n\n '
             logger.info(documents_string)
             activity_variable_dictionary = {
-                'ACTIVITY_NAME': activity.activity_name,
+                'ACTIVITY_NAME': str(activity.activity_name),
                 'ACTIVITY_DESCRIPTION': convert_normal_text_to_latex(activity.description),
                 'ACTIVITY_DATE': str(activity.date),
                 'ACTIVITY_DOCUMENTS': documents_string
@@ -113,6 +113,7 @@ def process_latex_template(template_folder_path: str, output_folder_path: str, r
                 activity_text = convert_latex_to_normal_text(activity_text)
 
                 for key, value in activity_variable_dictionary.items():
+                    print(key)
                     activity_text = re.sub(r'\{\{ ' + key + r' \}\}', value, activity_text)
                 activities_text += activity_text + '\n\n'
 

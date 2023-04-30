@@ -4,7 +4,8 @@ from flask import Flask, jsonify, request
 from bson.objectid import ObjectId
 import base64
 import uuid
-from service import ai
+from service import ai, pdf
+from dto import report as report_dto
 
 
 
@@ -298,7 +299,8 @@ def generate_report(report_id, target_language):
 
             # change activity name if language is different
             if lang_activity != target_language:
-                activity_item['name'] = ai.translate_text(activity_item['name'], lang_activity, target_language)
+                activity_item['activity_name'] = ai.translate_text(activity_item['activity_name'], lang_activity, target_language)
+                activity_item['description'] = ai.translate_text(activity_item['description'], lang_activity, target_language)
 
             # if language is different, translate the activity and all the documents in it
             for document in activity_item['documents']:
@@ -311,19 +313,60 @@ def generate_report(report_id, target_language):
                             text = f.read()
                             translated_text, metric = ai.translate_text(text, lang_activity, target_language)
                             document_item['content'] = translated_text
-                        document_list_translated.append(document_item)
-                    else:
-                        document_list_translated.append(document_item)
                 
                 # search for audio files in the activity and transcribe them
                 elif document['type'] == 'audio':
                     transcripted_text = ai.recognize_speech(document['content'], lang_activity)
                     translated_text, metric = ai.translate_text(transcripted_text, lang_activity, target_language)
                     document_item['content'] = translated_text
-                    document_list_translated.append(document_item)
-                else: 
-                    document_list_translated.append(document_item)
+
+                document_list_translated.append(
+                    report_dto.Document(
+                        id = uuid.uuid4(),
+                        type= document_item['type'],
+                        content = document_item['content']
+                    )
+                )
+
             print(document_list_translated)
+
+            activity_list_translated.append(report_dto.Activity(
+                id = uuid.uuid4(),
+                activity_name = activity_item['activity_name'],
+                description = activity_item['description'],
+                # make date iso format
+                date = datetime.strptime(activity_item['date'], '%Y-%m-%d').isoformat(),
+                documents = document_list_translated
+            ))
+
+        print(activity_list_translated)
+        # report_translated = {
+        #     'project_name' : report_item['project_name'],
+        #     'description' : report_item['description'],
+        #     'success' : True,
+        #     'activities' : activity_list_translated,
+        #     'created_at' : report_item['created_at'],
+        #     'owner' : report_item['collaborators'][0]['name'],
+        #     'collaborators' : report_item['collaborators'][1:],
+        # }
+
+        collaborator_list = []
+        for collaborator in report_item['collaborators']:
+            collaborator_list.append(collaborator['name'])
+
+        report_object = report_dto.Report(
+            id = uuid.uuid4(),
+            project_name = report_item['project_name'],
+            description = report_item['description'],
+            success = True,
+            activities= activity_list_translated,
+            owner= report_item['collaborators'][0]['name'],
+            collaborators= collaborator_list,
+            created_at= datetime.strptime(report_item['created_at'], "%Y-%m-%d %H:%M:%S").date()
+        )
+
+        pdf.compile_pdf(report=report_object, output_folder_path='data/output/output_latex', template_folder_path='resource/latex')
+            
                             
                     
 
@@ -350,4 +393,4 @@ def post_collaborator(report_id):
 
 
 if __name__ == '__main__':
-    app.run(port=8080)
+    app.run(port=8080, host="10.183.126.209")

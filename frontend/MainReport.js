@@ -31,16 +31,18 @@ const MainReport = ({ reports }) => {
           TODO: Change to adjust to current actual Report
         */
         trailing={props => (<IconButton icon={props => <Icon name="download" {...props} />} {...props} onPress={() => { Alert.alert("Download Report") }} />)}
-        title={reports[0].name}
+        // title={reports[0].name}
         color="#2b2b2b" />
       <ScrollView>
         {
-          reports.map((u, i) => {
-            return (
-              <Report key={i} report={u}>
-              </Report>
-            );
-          })
+          // reports.map((u, i) => {
+          //   return (
+          //     <Report key={i} report={u}>
+          //     </Report>
+          //   );
+          // })
+          reports.result.map((v, i) => {return(<Text>{v.created_at}</Text>)})
+          // <Text>{reports.result}</Text>
         }
         <Card>
           <Text>

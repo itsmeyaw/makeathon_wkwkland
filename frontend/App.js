@@ -1,5 +1,5 @@
 import React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Text, ScrollView, StatusBar, Modal, Alert, View, StyleSheet, Pressable } from 'react-native';
 import { AppBar, IconButton, TextInput } from "@react-native-material/core";
 import { Card } from 'react-native-elements'
@@ -8,6 +8,7 @@ import Icon from "@expo/vector-icons/MaterialCommunityIcons";
 import { FAB } from 'react-native-paper';
 import uuid from 'react-native-uuid';
 import MainReport from './MainReport';
+import {APIroot} from './Global.js'
 
 const testUsers = [
   {
@@ -122,13 +123,36 @@ const deleteChronology = (id) => {
   }
 }
 
+async function fetchAsync (url) {
+  let response = await fetch(url);
+  let data = await response.json();
+  return data;
+}
+
 const App = () => {
+  
+  const [data, setData] = useState()
+
+  const fetchData = () => {
+    fetch(APIroot+'/reports')
+      .then(response => {
+        return response.json()
+      })
+      .then(data => {
+        setData(data)
+        console.log(data)
+      })
+  }
+
+  useEffect(() => {
+    fetchData()
+  }, [])
+
   return(
-    <MainReport reports={reports}>
+    <MainReport reports={data}>
     </MainReport> 
   )
 };
-
 
 const styles = StyleSheet.create({
   centeredView: {
