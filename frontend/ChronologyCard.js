@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Modal, Styles, StyleSheet, TextInput, Pressable, Alert, LayoutAnimation, UIManager } from 'react-native';
 import { Card, Icon } from 'react-native-elements';
 import { Button } from '@react-native-material/core';
@@ -6,8 +6,9 @@ import ActivityCard from "./ActivityCard";
 import * as Permissions from 'expo-permissions';
 import * as DocumentPicker from 'expo-document-picker';
 import uuid from 'react-native-uuid';
+import { APIroot } from './Global';
 
-const ChronologyCard = ({ chronology }) => {
+const ChronologyCard = ({ chronology, reportId }) => {
 
     const [expanded, setExpanded] = useState(false);
 
@@ -20,6 +21,9 @@ const ChronologyCard = ({ chronology }) => {
     const [modalVisible, setModalVisible] = useState(false);
 
     const [newActivityName, setNewActivityName] = useState('');
+
+    const [documents, setDocuments] = useState()
+    const [docsLoaded, setDocsLoaded] = useState(false)
 
     const pickImage = async () => {
         let result = await DocumentPicker.getDocumentAsync({
@@ -68,28 +72,57 @@ const ChronologyCard = ({ chronology }) => {
 
     UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
 
+    useEffect(() => {
+        if (chronology != null && expanded == true) {
+            const fetchData = (endpointStr) => {
+                fetch(APIroot + endpointStr)
+                    .then(response => response.json())
+                    .then(data => {
+                        setDocuments(data);
+                        console.log("::ENDPOINT::" + endpointStr)
+                        console.log(data);
+                        setDocsLoaded(true)
+                    })
+            };
+
+            fetchData('/reports/' + reportId + '/activities/' + chronology.id + '/documents');
+        }
+    }, [chronology, expanded])
+
     return (
         <>
             <Card>
                 {/* <Card.Image source={require('./assets/favicon.png')} /> */}
-                <Text style={{ fontSize: 22 }}>{chronology.name}</Text>
-                <Text style={{ fontSize: 10 }}>{chronology.time}</Text>
+                <Text style={{ fontSize: 22 }}>{chronology.activity_name}</Text>
+                <Text style={{ fontSize: 10 }}>{chronology.date}</Text>
+                <Text style={{ fontSize: 10 }}>{chronology.language}</Text>
                 <Text style={{ marginBottom: 10 }}>
-                    {chronology.UUID}
+                    {chronology.id}
                 </Text>
                 {expanded && (
                     <View>
                         {
-                            chronology.activities.map((activity, i) => (
-                                <ActivityCard activity={activity} key={i}></ActivityCard>
-                            ))
+                            docsLoaded && 
+                            documents.result.map((u,i)=>{<ActivityCard key={i} activity={u}></ActivityCard>})
+
+                            // (docsLoaded == true) && (documents) ?
+                            //     documents.map((doc, i) => {
+                            //         <ActivityCard activity={doc} key={i}></ActivityCard>
+                            //     }) : null
+                            // chronology.activities.map((activity, i) => (
+                            //     <ActivityCard activity={activity} key={i}></ActivityCard>
+                            // // ))
+                            // documents &&
+                            // documents.map((doc, i)=>{
+                            //     <ActivityCard activity={doc} key={i}></ActivityCard>
+                            // })
                         }
                         <Card wrapperStyle={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
-                            <Button style={{margin: 10}}
+                            <Button style={{ margin: 10 }}
                                 title={'Text!'} onPress={() => { setModalVisible(true) }} />
-                            <Button style={{margin: 10}}
+                            <Button style={{ margin: 10 }}
                                 title={'Voice'} onPress={pickAudio} />
-                            <Button style={{margin: 10}}
+                            <Button style={{ margin: 10 }}
                                 title={'Image'} onPress={pickImage} />
                         </Card>
                         <Button
