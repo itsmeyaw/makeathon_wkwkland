@@ -3,16 +3,15 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import { Card, Button, Icon } from 'react-native-elements';
 import ChronologyCard from "./ChronologyCard"
 
-const Report = ({ report }) => {
+const Report = ({ report, reportId }) => {
     return (
         <>
             {
-                report.chronologies.map((u, i)=>{
-                    return(
-                            <ChronologyCard key={i} chronology={u}>
-                            </ChronologyCard>
-                    );
-                })
+                report &&
+                (
+                    <ChronologyCard chronology={report} reportId={reportId}>
+                    </ChronologyCard>
+                )
             }
         </>
     );

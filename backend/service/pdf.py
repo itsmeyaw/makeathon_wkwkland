@@ -7,24 +7,39 @@ import subprocess
 import sys
 import tempfile
 import uuid
+from service import ai
 
 from dto.report import Report, Activity, Document, DocumentType
 
 logger = logging.getLogger('PDF Service')
 
 
-def obtain_latex_for_recording(file_name: str, translation: str = None) -> str:
+def obtain_latex_for_recording(file_name: str, src_lang: str, dst_lang: str = None, translation: (str, int) = None) -> str:
+    if dst_lang is None:
+        dst_lang = src_lang
+
+    if translation is None:
+        transcription = ai.recognize_speech(filename=file_name, language=src_lang)
+        translation = ai.translate_text(transcription, src_lang, dst_lang)
+
+
+    text, score = translation
+
     return \
         f"""
 \\\\\\\\textbf{{Recording name}}: {file_name} 
 
-\\\\\\\\textbf{{Translation}}: {translation if translation is not None else 'No translation'}
+\\\\\\\\textbf{{Translation}}: {text + ', translation score: ' + str(score) if text is not None else 'No translation'}
 """
 
 
 def obtain_latex_for_picture(file_path: str, destination_path: str, caption: str = None) -> str:
     location = shutil.copy(file_path, destination_path)
     logger.info(f'Copied file to {location}')
+
+    if caption is None:
+        caption = ai.describe_image(file_path)
+
     return \
         f"""
 \\\\\\\\begin{{figure}}[H]
@@ -83,7 +98,7 @@ def process_latex_template(template_folder_path: str, output_folder_path: str, r
                     documents_string += obtain_latex_for_picture(file_path, f'{output_folder_path}/resource')
                 elif document.type == DocumentType.AUDIO or document.type == 'audio':
                     file_path = document.content
-                    documents_string += obtain_latex_for_recording(file_path)
+                    documents_string += obtain_latex_for_recording(file_path, document.language, translation=document.translation)
                 elif document.type == DocumentType.FILE or document.type == 'file':
                     file_path = document.content
                     documents_string += obtain_latex_for_file(file_path)

@@ -41,12 +41,12 @@ const ActivityCard = ({ activity }) => {
         <>
             <Card>
                 <Card.Title>
-                    {activity.name}
+                    {activity.content}
                 </Card.Title>
                 <Text>
-                    {activity.UUID}
+                    {activity.id}
                 </Text>
-                {
+                {/* {
                     activity.image &&
                     <>
                     <Pressable onPress={handleShowAlert}>
@@ -63,7 +63,7 @@ const ActivityCard = ({ activity }) => {
                 {
                     activity.audio &&
                     <Button onPress={PlayAudio}></Button>
-                }
+                } */}
                 
             </Card>
         </>

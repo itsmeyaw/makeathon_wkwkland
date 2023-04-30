@@ -123,33 +123,35 @@ const deleteChronology = (id) => {
   }
 }
 
-async function fetchAsync (url) {
-  let response = await fetch(url);
-  let data = await response.json();
-  return data;
-}
-
 const App = () => {
-  
-  const [data, setData] = useState()
 
-  const fetchData = () => {
-    fetch(APIroot+'/reports')
-      .then(response => {
-        return response.json()
-      })
-      .then(data => {
-        setData(data)
-        console.log(data)
-      })
-  }
+  const [tmpData, setTmpData] = useState();
+  const [reportIds, setReportIds] = useState([]);
 
   useEffect(() => {
-    fetchData()
-  }, [])
+    const fetchData = (endpointStr) => {
+      fetch(APIroot+endpointStr)
+        .then(response => response.json())
+        .then(data => {
+          setTmpData(data);
+          console.log(endpointStr+':'+data);
+        });
+    };
+
+    fetchData('/reports');
+  }, []);
+
+  useEffect(() => {
+    console.log(tmpData)
+    if (tmpData) {
+      const ids = tmpData.result.map((u, i) => u.id);
+      console.log("Ids detected:"+ids)
+      setReportIds(ids);
+    }
+  }, [tmpData]);
 
   return(
-    <MainReport reports={data}>
+    <MainReport reports={reportIds}>
     </MainReport> 
   )
 };

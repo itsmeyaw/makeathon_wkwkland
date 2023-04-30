@@ -1,5 +1,5 @@
 import React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Text, ScrollView, StatusBar, Modal, Alert, View, StyleSheet, Pressable } from 'react-native';
 import { AppBar, IconButton, TextInput } from "@react-native-material/core";
 import { Card } from 'react-native-elements'
@@ -7,16 +7,49 @@ import Report from "./Report.js"
 import Icon from "@expo/vector-icons/MaterialCommunityIcons";
 import { FAB } from 'react-native-paper';
 import uuid from 'react-native-uuid';
+import { APIroot } from './Global.js';
 
 const MainReport = ({ reports }) => {
 
   const [modalVisible, setModalVisible] = useState(false);
 
   /*
+  Get first report id (Dev implementation)
+  */
+  const firstReport = reports[0]
+  console.log("First Report:"+firstReport)
+
+  const [tmpData, setTmpData] = useState();
+  const [operations, setOperations] = useState();
+
+  /*
   States to create a new Chronology which changes with the text boxes
   */
   const [newChronologyName, setNewChronologyName] = useState('');
   const [newChronologyDate, setNewChronologyDate] = useState('');
+
+  useEffect(() => {
+    const fetchData = (endpointStr) => {
+      fetch(APIroot+endpointStr)
+        .then(response => response.json())
+        .then(data => {
+          setTmpData(data);
+          console.log("::"+endpointStr)
+          console.log(data);
+        });
+    };
+
+    fetchData('/reports/'+firstReport);
+  }, [firstReport]);
+
+  useEffect(()=>{
+    if(tmpData != null) {
+      const opList = tmpData.result.activities
+      console.log("::Activities::")
+      console.log(opList)
+      setOperations(opList)
+    }
+  }, [tmpData])
 
   return (
     <>
@@ -41,8 +74,19 @@ const MainReport = ({ reports }) => {
           //     </Report>
           //   );
           // })
-          reports.result.map((v, i) => {return(<Text>{v.created_at}</Text>)})
-          // <Text>{reports.result}</Text>
+          // reports.result.map((v, i) => {return(<Text key={i}>{v.created_at}</Text>)})
+          // // <Text>{tmpData}</Text>
+
+          // operations &&
+          // operations.map((u,i)=>{return(<Text key={i}>{u.activity_name}</ Text>)})
+
+          operations &&
+          operations.map((u,i)=>{
+            return(
+              <Report key={i} report={u} reportId={firstReport}>
+              </Report>
+            )
+          })
         }
         <Card>
           <Text>

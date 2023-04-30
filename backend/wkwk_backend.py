@@ -305,7 +305,7 @@ def generate_report(report_id, target_language):
             # if language is different, translate the activity and all the documents in it
             for document in activity_item['documents']:
                 document_item = documents.find_one({'_id' : ObjectId(document['_id'])})
-
+                file_name = document_item['content']
                 # search for text documents in the activity and translate them
                 if document['type'] == 'text':
                     if lang_activity != target_language:
@@ -324,7 +324,9 @@ def generate_report(report_id, target_language):
                     report_dto.Document(
                         id = uuid.uuid4(),
                         type= str(document_item['type']).replace('_', '\\_'),
-                        content = str(document_item['content']).replace('_', '\\_')
+                        content = str(file_name).replace('_', '\\_'),
+                        translation = (str(document_item['content']).replace('_', '\\_'), 0),
+                        language=lang_activity
                     )
                 )
 
