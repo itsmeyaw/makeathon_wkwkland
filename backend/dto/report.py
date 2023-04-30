@@ -16,6 +16,9 @@ class Document:
     id: uuid.UUID
     type: DocumentType
     content: str
+    language: str
+    translation: str = None
+    summary: str = None
 
 
 @dataclass
