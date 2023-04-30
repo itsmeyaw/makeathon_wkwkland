@@ -76,15 +76,15 @@ def process_latex_template(template_folder_path: str, output_folder_path: str, r
         for activity in report.activities:
             documents_string = ''
             for document in activity.documents:
-                if document.type == DocumentType.TEXT:
+                if document.type == DocumentType.TEXT or document.type == 'text':
                     documents_string += obtain_latex_for_paragraph(document.content)
-                elif document.type == DocumentType.PICTURE:
+                elif document.type == DocumentType.PICTURE or document.type == 'image':
                     file_path = document.content
                     documents_string += obtain_latex_for_picture(file_path, f'{output_folder_path}/resource')
-                elif document.type == DocumentType.AUDIO:
+                elif document.type == DocumentType.AUDIO or document.type == 'audio':
                     file_path = document.content
                     documents_string += obtain_latex_for_recording(file_path)
-                elif document.type == DocumentType.FILE:
+                elif document.type == DocumentType.FILE or document.type == 'file':
                     file_path = document.content
                     documents_string += obtain_latex_for_file(file_path)
                 documents_string += ' \n\n '

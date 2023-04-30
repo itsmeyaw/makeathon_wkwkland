@@ -323,8 +323,8 @@ def generate_report(report_id, target_language):
                 document_list_translated.append(
                     report_dto.Document(
                         id = uuid.uuid4(),
-                        type= document_item['type'],
-                        content = document_item['content']
+                        type= str(document_item['type']).replace('_', '\\_'),
+                        content = str(document_item['content']).replace('_', '\\_')
                     )
                 )
 
@@ -332,8 +332,8 @@ def generate_report(report_id, target_language):
 
             activity_list_translated.append(report_dto.Activity(
                 id = uuid.uuid4(),
-                activity_name = activity_item['activity_name'],
-                description = activity_item['description'],
+                activity_name = str(activity_item['activity_name']).replace('_', '\\_'),
+                description = str(activity_item['description']).replace('_', '\\_'),
                 # make date iso format
                 date = datetime.strptime(activity_item['date'], '%Y-%m-%d').isoformat(),
                 documents = document_list_translated
@@ -356,8 +356,8 @@ def generate_report(report_id, target_language):
 
         report_object = report_dto.Report(
             id = uuid.uuid4(),
-            project_name = report_item['project_name'],
-            description = report_item['description'],
+            project_name = str(report_item['project_name']).replace('_', '\\_'),
+            description = str(report_item['description']).replace('_', '\\_'),
             success = True,
             activities= activity_list_translated,
             owner= report_item['collaborators'][0]['name'],
