@@ -7,24 +7,36 @@ import subprocess
 import sys
 import tempfile
 import uuid
+import ai
 
 from dto.report import Report, Activity, Document, DocumentType
 
 logger = logging.getLogger('PDF Service')
 
 
-def obtain_latex_for_recording(file_name: str, translation: str = None) -> str:
+def obtain_latex_for_recording(file_name: str, src_lang: str, dst_lang: str = None, translation: str = None) -> str:
+    if dst_lang is None:
+        dst_lang = src_lang
+
+    if translation is None:
+        transcription = ai.recognize_speech(filename=file_name, language=src_lang)
+        translation, score = ai.translate_text(transcription, src_lang, dst_lang)
+
     return \
         f"""
 \\\\\\\\textbf{{Recording name}}: {file_name} 
 
-\\\\\\\\textbf{{Translation}}: {translation if translation is not None else 'No translation'}
+\\\\\\\\textbf{{Translation}}: {translation + ', translation score: ' + score if translation is not None and score is not None else 'No translation'}
 """
 
 
 def obtain_latex_for_picture(file_path: str, destination_path: str, caption: str = None) -> str:
     location = shutil.copy(file_path, destination_path)
     logger.info(f'Copied file to {location}')
+
+    if caption is None:
+        caption = ai.describe_image(file_path)
+
     return \
         f"""
 \\\\\\\\begin{{figure}}[H]
@@ -80,10 +92,10 @@ def process_latex_template(template_folder_path: str, output_folder_path: str, r
                     documents_string += obtain_latex_for_paragraph(document.content)
                 elif document.type == DocumentType.PICTURE:
                     file_path = document.content
-                    documents_string += obtain_latex_for_picture(file_path, f'{output_folder_path}/resource')
+                    documents_string += obtain_latex_for_picture(file_path, f'{output_folder_path}/resource', caption=document.summary)
                 elif document.type == DocumentType.AUDIO:
                     file_path = document.content
-                    documents_string += obtain_latex_for_recording(file_path)
+                    documents_string += obtain_latex_for_recording(file_path, document.language, translation=document.translation)
                 elif document.type == DocumentType.FILE:
                     file_path = document.content
                     documents_string += obtain_latex_for_file(file_path)
